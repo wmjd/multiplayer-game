@@ -29,12 +29,23 @@ io.on('connection', function(socket) {
 	})
 
 	socket.on('new player', function() {
-		players[socket.id] = {
-			x: 800 * Math.random(),
-			y: 600 * Math.random(),
-			predator: false,
-			wasLastPredator: false
-		};
+		console.log("contents of players, ", players);
+
+		if(isEmpty(players)){
+			players[socket.id] = {
+				x: 800 * Math.random(),
+				y: 600 * Math.random(),
+				predator: true,
+				wasLastPredator: false
+			};
+		}else{
+			players[socket.id] = {
+				x: 800 * Math.random(),
+				y: 600 * Math.random(),
+				predator: false,
+				wasLastPredator: false
+			};
+		}
 	});
 	socket.on('movement', function(data) {
 		var player = players[socket.id] || {};
@@ -54,5 +65,24 @@ io.on('connection', function(socket) {
 });
 
 setInterval(function() {
-  io.sockets.emit('state', players);
+	/*for(var player in players){
+		if(players[player].x == 
+	}*/
+
+	io.sockets.emit('state', players);
 }, 1000 / 60);
+
+//////////////////////////////////////////////////////////////
+// useful functions....
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+
+
+
+
