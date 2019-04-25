@@ -31,7 +31,9 @@ io.on('connection', function(socket) {
 	socket.on('new player', function() {
 		players[socket.id] = {
 			x: 800 * Math.random(),
-			y: 600 * Math.random()
+			y: 600 * Math.random(),
+			predator: false,
+			wasLastPredator: false
 		};
 	});
 	socket.on('movement', function(data) {
