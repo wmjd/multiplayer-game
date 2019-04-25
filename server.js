@@ -23,6 +23,8 @@ server.listen(PORT, function() {
 });
 
 var players = {};
+predatorId = 0
+lastPredatorId = 0
 io.on('connection', function(socket) {
 	socket.on('disconnect', function(){
 		delete players[socket.id];     	
@@ -36,14 +38,16 @@ io.on('connection', function(socket) {
 				x: 800 * Math.random(),
 				y: 600 * Math.random(),
 				predator: true,
-				wasLastPredator: false
+				lastPredator: false
 			};
+			predatorId = socket.id;
+			lastPredatorId = socket.id;
 		}else{
 			players[socket.id] = {
 				x: 800 * Math.random(),
 				y: 600 * Math.random(),
 				predator: false,
-				wasLastPredator: false
+				lastPredator: false
 			};
 		}
 	});
@@ -65,9 +69,27 @@ io.on('connection', function(socket) {
 });
 
 setInterval(function() {
-	/*for(var player in players){
-		if(players[player].x == 
-	}*/
+	for(var prey in players){
+		if(prey == predatorId) continue //same id, not self is not prey
+		console.log(
+			Math.sqrt(
+				Math.pow(players[predatorId].x - players[prey].x,2) +
+				Math.pow(players[predatorId].y - players[prey].y,2))
+			)	 
+		if((Math.sqrt(
+			Math.pow(players[predatorId].x - players[prey].x,2) +
+			Math.pow(players[predatorId].y - players[prey].y,2)) < 20)
+			&& !players[prey].lastPredator)
+		{
+		console.log("INTERSECTION!");	
+			players[lastPredatorId].lastPredator = false;
+			players[predatorId].predator = false;
+			players[predatorId].lastPredator = true;
+			players[prey].predator = true;
+			lastPredatorId = predatorId;
+			predatorId = prey;
+		} 
+	}
 
 	io.sockets.emit('state', players);
 }, 1000 / 60);
