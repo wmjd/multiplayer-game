@@ -28,6 +28,15 @@ lastPredatorId = 0
 io.on('connection', function(socket) {
 	socket.on('disconnect', function(){
 		delete players[socket.id];     	
+		if(socket.id == predatorId){
+			predatorId = lastPredatorId;
+			players[predatorId].predator = true;
+			lastPredatorId = drawPlayerId();
+			players[lastPredatorId].lastPredator = true;
+		}else if(socket.id == lastPredatorId){
+			lastPredatorId = drawPlayerId();
+			players[lastPredatorId].lastPredator = true;
+		}
 	})
 
 	socket.on('new player', function() {
@@ -69,25 +78,25 @@ io.on('connection', function(socket) {
 });
 
 setInterval(function() {
-	for(var prey in players){
-		if(prey == predatorId) continue //same id, not self is not prey
+	for(var preyId in players){
+		if(preyId == predatorId) continue //same id, skip
 		console.log(
 			Math.sqrt(
-				Math.pow(players[predatorId].x - players[prey].x,2) +
-				Math.pow(players[predatorId].y - players[prey].y,2))
+				Math.pow(players[predatorId].x - players[preyId].x,2) +
+				Math.pow(players[predatorId].y - players[preyId].y,2))
 			)	 
 		if((Math.sqrt(
-			Math.pow(players[predatorId].x - players[prey].x,2) +
-			Math.pow(players[predatorId].y - players[prey].y,2)) < 20)
-			&& !players[prey].lastPredator)
+			Math.pow(players[predatorId].x - players[preyId].x,2) +
+			Math.pow(players[predatorId].y - players[preyId].y,2)) < 20)
+			&& !players[preyId].lastPredator)
 		{
 		console.log("INTERSECTION!");	
 			players[lastPredatorId].lastPredator = false;
 			players[predatorId].predator = false;
 			players[predatorId].lastPredator = true;
-			players[prey].predator = true;
+			players[preyId].predator = true;
 			lastPredatorId = predatorId;
-			predatorId = prey;
+			predatorId = preyId;
 		} 
 	}
 
@@ -102,6 +111,12 @@ function isEmpty(obj) {
             return false;
     }
     return true;
+}
+
+function drawPlayerId(){
+	for(var randPlayerId in players){
+		return randPlayerId;
+	} 
 }
 
 
