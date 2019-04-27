@@ -73,7 +73,7 @@ io.on('connection', function(socket) {
 			var proj = new Proj()
 			if (data.left) {
 				player.x -= 5;
-				proj.Dy  -= 10;
+				proj.Dx  -= 10;
 			}
 			if (data.up) {
 				player.y -= 5;
