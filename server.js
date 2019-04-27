@@ -143,7 +143,7 @@ setInterval(function() {
 		}
 	}
 
-	io.sockets.emit('state', players);
+	io.sockets.emit('state', {players, projectiles});
 }, 1000 / 60);
 
 //////////////////////////////////////////////////////////////
