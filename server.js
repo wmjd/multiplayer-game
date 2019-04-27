@@ -23,10 +23,11 @@ server.listen(PORT, function() {
 });
 
 
-var projectiles = {};
-var players = {};
+var projectiles = [];	//array of Proj instances
+var players = {};		//keys are socketId, values for player are data objects
 predatorId = 0
 lastPredatorId = 0
+
 io.on('connection', function(socket) {
 	socket.on('disconnect', function(){
 		delete players[socket.id];     	
@@ -67,8 +68,7 @@ io.on('connection', function(socket) {
 	});
 	socket.on('movement', function(data) {
 		var player = players[socket.id] || {};
-		var proje
-		if (data.fire){
+		if (data.fire){		//also create proj Dx,Dy,x,y,lifetime
 			var proj = new Proj()
 			if (data.left) {
 				player.x -= 5;
@@ -88,6 +88,8 @@ io.on('connection', function(socket) {
 			}
 			proj.x = player.x;
 			proj.y = player.y;
+			projectiles.push(proj);
+			console.log(projectiles);
 			
 		}else{
 			if (data.left) {
@@ -109,18 +111,18 @@ io.on('connection', function(socket) {
 
 setInterval(function() {
 	for(var preyId in players){
-		if(preyId == predatorId) continue //same id, skip
-		console.log(
+		if(preyId == predatorId) continue //if same id, skip
+		/*console.log(					  //log distance for dev
 			Math.sqrt(
 				Math.pow(players[predatorId].x - players[preyId].x,2) +
 				Math.pow(players[predatorId].y - players[preyId].y,2))
-			)	 
+			)	 */
+		//ask if collision, ie distance < 2*radius
 		if((Math.sqrt(
 			Math.pow(players[predatorId].x - players[preyId].x,2) +
 			Math.pow(players[predatorId].y - players[preyId].y,2)) < 20)
 			&& !players[preyId].lastPredator)
 		{
-		console.log("INTERSECTION!");	
 			players[lastPredatorId].lastPredator = false;
 			players[predatorId].predator = false;
 			players[predatorId].lastPredator = true;
@@ -129,6 +131,7 @@ setInterval(function() {
 			predatorId = preyId;
 		} 
 	}
+//	for(let i = 0; i < projectiles asdasd
 
 	io.sockets.emit('state', players);
 }, 1000 / 60);
@@ -158,9 +161,4 @@ function Proj(){
 }
 
 
-/*projectiles are fired from user like other movement
-the server has an projectile object of all projectiles with socketId as key
-	and value is object with {Dy, Dx, x, y, lifetime}
-every turn
 
-*/
