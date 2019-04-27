@@ -23,7 +23,8 @@ server.listen(PORT, function() {
 });
 
 
-var projectiles = [];	//array of Proj instances
+var projectiles = {};
+var $ = 0;				//yes, write names like this. no one else will read your code anyway.
 var players = {};		//keys are socketId, values for player are data objects
 predatorId = 0
 lastPredatorId = 0
@@ -68,7 +69,7 @@ io.on('connection', function(socket) {
 	});
 	socket.on('movement', function(data) {
 		var player = players[socket.id] || {};
-		if (data.fire){		//also create proj Dx,Dy,x,y,lifetime
+		if (data.fire){		//also create proj Dx,Dy,x,y,distRem
 			var proj = new Proj()
 			if (data.left) {
 				player.x -= 5;
@@ -88,7 +89,7 @@ io.on('connection', function(socket) {
 			}
 			proj.x = player.x;
 			proj.y = player.y;
-			projectiles.push(proj);
+			projectiles[$++] = proj;
 			console.log(projectiles);
 			
 		}else{
@@ -131,7 +132,16 @@ setInterval(function() {
 			predatorId = preyId;
 		} 
 	}
-//	for(let i = 0; i < projectiles asdasd
+		
+	for(var p in projectiles){
+		if(projectiles[p].distRem < 10){
+			delete projectiles[p]
+		}else{
+			projectiles[p].distRem -= 10;
+			projectiles[p].x += projectiles[p].Dx;
+			projectiles[p].y += projectiles[p].Dy; 
+		}
+	}
 
 	io.sockets.emit('state', players);
 }, 1000 / 60);
@@ -157,7 +167,7 @@ function Proj(){
 	this.y = 0;
 	this.Dx = 0;
 	this.Dy = 0;
-	this.life = 100; 
+	this.distRem = 100; 
 }
 
 
