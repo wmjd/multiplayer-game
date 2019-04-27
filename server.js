@@ -22,20 +22,23 @@ server.listen(PORT, function() {
 	console.log('Starting server on port 5000');
 });
 
+
+var projectiles = {};
 var players = {};
 predatorId = 0
 lastPredatorId = 0
 io.on('connection', function(socket) {
 	socket.on('disconnect', function(){
 		delete players[socket.id];     	
+		if(socket.id == lastPredatorId){
+			lastPredatorId = drawPlayerId() || 0;
+			if(lastPredatorId)
+				players[lastPredatorId].lastPredator = true;
+		}
 		if(socket.id == predatorId){
-			predatorId = lastPredatorId;
-			players[predatorId].predator = true;
-			lastPredatorId = drawPlayerId();
-			players[lastPredatorId].lastPredator = true;
-		}else if(socket.id == lastPredatorId){
-			lastPredatorId = drawPlayerId();
-			players[lastPredatorId].lastPredator = true;
+			predatorId = drawPlayerId() || 0;
+			if(predatorId)
+				players[predatorId].predator = true;
 		}
 	})
 
@@ -47,7 +50,8 @@ io.on('connection', function(socket) {
 				x: 800 * Math.random(),
 				y: 600 * Math.random(),
 				predator: true,
-				lastPredator: false
+				lastPredator: false,
+				fire: false,
 			};
 			predatorId = socket.id;
 			lastPredatorId = socket.id;
@@ -56,24 +60,50 @@ io.on('connection', function(socket) {
 				x: 800 * Math.random(),
 				y: 600 * Math.random(),
 				predator: false,
-				lastPredator: false
+				lastPredator: false,
+				fire: false,
 			};
 		}
 	});
 	socket.on('movement', function(data) {
 		var player = players[socket.id] || {};
-		if (data.left) {
-			player.x -= 5;
+		var proje
+		if (data.fire){
+			var proj = new Proj()
+			if (data.left) {
+				player.x -= 5;
+				proj.Dy  -= 10;
+			}
+			if (data.up) {
+				player.y -= 5;
+				proj.Dy  -= 10
+			}
+			if (data.right) {
+				player.x += 5;
+				proj.Dx  += 10;
+			}
+			if (data.down) {
+				player.y += 5;
+				proj.Dy  += 10;
+			}
+			proj.x = player.x;
+			proj.y = player.y;
+			
+		}else{
+			if (data.left) {
+				player.x -= 5;
+			}
+			if (data.up) {
+				player.y -= 5;
+			}
+			if (data.right) {
+				player.x += 5;
+			}
+			if (data.down) {
+				player.y += 5;
+			}
 		}
-		if (data.up) {
-			player.y -= 5;
-		}
-		if (data.right) {
-			player.x += 5;
-		}
-		if (data.down) {
-			player.y += 5;
-		}
+	
 	});
 });
 
@@ -119,7 +149,18 @@ function drawPlayerId(){
 	} 
 }
 
+function Proj(){
+	this.x = 0;
+	this.y = 0;
+	this.Dx = 0;
+	this.Dy = 0;
+	this.life = 100; 
+}
 
 
+/*projectiles are fired from user like other movement
+the server has an projectile object of all projectiles with socketId as key
+	and value is object with {Dy, Dx, x, y, lifetime}
+every turn
 
-
+*/

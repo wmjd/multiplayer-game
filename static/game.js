@@ -1,10 +1,12 @@
+console.log("client");
 var socket = io();
 
 var movement = {
   up: false,
   down: false,
   left: false,
-  right: false
+  right: false,
+  fire: false,
 }
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
@@ -20,6 +22,9 @@ document.addEventListener('keydown', function(event) {
     case 83: // S
       movement.down = true;
       break;
+	case 32: // space
+      movement.fire = true;
+	  break;
   }
 });
 document.addEventListener('keyup', function(event) {
@@ -36,7 +41,10 @@ document.addEventListener('keyup', function(event) {
     case 83: // S
       movement.down = false;
       break;
-  }
+  	case 32: // space
+      movement.fire = false;
+	  break;
+	}
 });
 
 socket.emit('new player');
@@ -53,15 +61,8 @@ socket.on('state', function(players) {
   context.clearRect(0, 0, 800, 600);
   context.fillStyle = 'green';
   for (var id in players) {
-    var player = players[id];
-	if(player.predator){
-		context.fillStyle = 'red';
-	    context.beginPath();
-    	context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-    	context.fill();
-		context.fillStyle = 'green';
-		continue
-	}
+    var player = players[id];	
+	context.fillStyle = player.predator? 'red' : 'green';
     context.beginPath();
     context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
     context.fill();
