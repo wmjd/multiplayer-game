@@ -24,45 +24,35 @@ server.listen(PORT, function() {
 
 
 var projectiles = {};
-var $ = 0;				//yes, write names like this. no one else will read your code anyway.
+var pid = 0;			//projectile ID
 var players = {};		//keys are socketId, values for player are data objects
 predatorId = 0
 lastPredatorId = 0
 
 io.on('connection', function(socket) {
 	socket.on('disconnect', function(){
-		delete players[socket.id];     	
-		if(socket.id == lastPredatorId){
-			lastPredatorId = drawPlayerId() || 0;
-			if(lastPredatorId)
-				players[lastPredatorId].lastPredator = true;
-		}
-		if(socket.id == predatorId){
-			predatorId = drawPlayerId() || 0;
-			if(predatorId)
-				players[predatorId].predator = true;
-		}
+		safeRemove(socket.id)
 	})
 
+
 	socket.on('new player', function() {
-		console.log("contents of players, ", players);
 
 		if(isEmpty(players)){
-			players[socket.id] = {
-				x: 800 * Math.random(),
-				y: 600 * Math.random(),
-				predator: true,
-				lastPredator: false,
-				fire: false,
-			};
 			predatorId = socket.id;
 			lastPredatorId = socket.id;
-		}else{
 			players[socket.id] = {
+				predator: true,
+				lastPredator: false,
 				x: 800 * Math.random(),
 				y: 600 * Math.random(),
+				fire: false,
+			};
+		}else{
+			players[socket.id] = {
 				predator: false,
 				lastPredator: false,
+				x: 800 * Math.random(),
+				y: 600 * Math.random(),
 				fire: false,
 			};
 		}
@@ -70,27 +60,27 @@ io.on('connection', function(socket) {
 	socket.on('movement', function(data) {
 		var player = players[socket.id] || {};
 		if (data.fire){		//also create proj Dx,Dy,x,y,distRem
-			var proj = new Proj()
+			var proj = new Proj(socket.id)
 			if (data.left) {
 				player.x -= 5;
-				proj.Dx  -= 10;
+				proj.Dx  -= 20;
 			}
 			if (data.up) {
 				player.y -= 5;
-				proj.Dy  -= 10
+				proj.Dy  -= 20
 			}
 			if (data.right) {
 				player.x += 5;
-				proj.Dx  += 10;
+				proj.Dx  += 20;
 			}
 			if (data.down) {
 				player.y += 5;
-				proj.Dy  += 10;
+				proj.Dy  += 20;
 			}
 			proj.x = player.x;
 			proj.y = player.y;
-			projectiles[$++] = proj;
-			console.log(projectiles);
+			projectiles[pid++] = proj;
+//			console.log(projectiles);
 			
 		}else{
 			if (data.left) {
@@ -135,15 +125,32 @@ setInterval(function() {
 		
 	for(var p in projectiles){
 		if(projectiles[p].distRem < 10){
-			delete projectiles[p]
-		}else{
-			projectiles[p].distRem -= 10;
-			projectiles[p].x += projectiles[p].Dx;
-			projectiles[p].y += projectiles[p].Dy; 
+			delete projectiles[p];
+			break ;
+		}
+		projectiles[p].distRem -= 10;
+		projectiles[p].x += projectiles[p].Dx;
+		projectiles[p].y += projectiles[p].Dy; 	
+		for(var y in players){
+			if(
+				(y != projectiles[p].from) &&
+				(Math.sqrt(
+					Math.pow(players[y].x - projectiles[p].x,2) +
+					Math.pow(players[y].y - projectiles[p].y,2)) < 14)
+			)
+			{
+				delete projectiles[p];
+				safeRemove[y];
+				//console.log(y)
+				console.log(players);
+				break ;
+			
+			}
 		}
 	}
-
+	
 	io.sockets.emit('state', {players, projectiles});
+
 }, 1000 / 60);
 
 //////////////////////////////////////////////////////////////
@@ -162,7 +169,8 @@ function drawPlayerId(){
 	} 
 }
 
-function Proj(){
+function Proj(socketId){
+	this.from = socketId;
 	this.x = 0;
 	this.y = 0;
 	this.Dx = 0;
@@ -171,4 +179,17 @@ function Proj(){
 }
 
 
-
+function safeRemove(socketId){
+	delete players[socketId];     	
+//	console.log(players);
+	if(socketId == lastPredatorId){
+		lastPredatorId = drawPlayerId() || 0;
+		if(lastPredatorId)
+			players[lastPredatorId].lastPredator = true;
+	}
+	if(socketId == predatorId){
+		predatorId = drawPlayerId() || 0;
+		if(predatorId)
+			players[predatorId].predator = true;
+	}
+}
