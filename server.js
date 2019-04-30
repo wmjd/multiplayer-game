@@ -30,36 +30,25 @@ predatorId = 0
 lastPredatorId = 0
 
 io.on('connection', function(socket) {
+	console.log(socket.id);
 	socket.on('disconnect', function(){
 		safeRemove(socket.id)
 	})
 
 
 	socket.on('new player', function() {
-
 		if(isEmpty(players)){
 			predatorId = socket.id;
 			lastPredatorId = socket.id;
-			players[socket.id] = {
-				predator: true,
-				lastPredator: false,
-				x: 800 * Math.random(),
-				y: 600 * Math.random(),
-				fire: false,
-			};
+			players[socket.id] = new Play(true); //set predator to this player
 		}else{
-			players[socket.id] = {
-				predator: false,
-				lastPredator: false,
-				x: 800 * Math.random(),
-				y: 600 * Math.random(),
-				fire: false,
-			};
+			players[socket.id] = new Play(false);//set predator false 
 		}
 	});
+
 	socket.on('movement', function(data) {
-		var player = players[socket.id] || (()=>{console.log("!!"); return {}})();
-		if (data.fire){		//also create proj Dx,Dy,x,y,distRem
+		var player = players[socket.id] || {}
+		if (data.fire){		
 			var proj = new Proj(socket.id)
 			if (data.left) {
 				player.x -= 5;
@@ -80,7 +69,6 @@ io.on('connection', function(socket) {
 			proj.x = player.x;
 			proj.y = player.y;
 			projectiles[pid++] = proj;
-//			console.log(projectiles);
 			
 		}else{
 			if (data.left) {
@@ -131,20 +119,22 @@ setInterval(function() {
 		projectiles[p].distRem -= 10;
 		projectiles[p].x += projectiles[p].Dx;
 		projectiles[p].y += projectiles[p].Dy; 	
-		for(var y in players){
+		for(var id in players){
 			if(
-				(y != projectiles[p].from) &&
+				(id != projectiles[p].from) &&
 				(Math.sqrt(
-					Math.pow(players[y].x - projectiles[p].x,2) +
-					Math.pow(players[y].y - projectiles[p].y,2)) < 14)
-			)
-			{
-				delete projectiles[p];
-				safeRemove(y);
-				//console.log(y)
-				console.log(players);
-				break ;
-			
+					Math.pow(players[id].x - projectiles[p].x,2) +
+					Math.pow(players[id].y - projectiles[p].y,2)) < 14)
+			){
+				if(players[id].hp <= 0){
+					delete projectiles[p];
+					safeRemove(id);
+					//console.log(id)
+					console.log(players);
+					break ;
+				}else{
+					players[id].hp -=10;
+				}
 			}
 		}
 	}
@@ -177,6 +167,15 @@ function Proj(socketId){
 	this.Dy = 0;
 	this.distRem = 100; 
 }
+function Play(isPred){
+	this.predator = isPred
+	this.lastPredator = false;
+	this.x = 800 * Math.random();
+	this.y = 600 * Math.random();
+	this.fire = false;
+	this.hp = 100;
+}
+
 
 
 function safeRemove(socketId){

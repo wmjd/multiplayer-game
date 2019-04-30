@@ -52,17 +52,29 @@ setInterval(function() {
 	socket.emit('movement', movement);
 }, 1000 / 60);
 
+
+var hpColor = {
+	100: 'rgb(0, 255, 0)',
+	 90: 'rgb(0, 235, 0)',
+	 80: 'rgb(0, 215, 0)',
+	 70: 'rgb(0, 195, 0)',
+	 60: 'rgb(0, 175, 0)',
+	 50: 'rgb(0, 155, 0)',
+	 40: 'rgb(0, 135, 0)',
+	 30: 'rgb(0, 115, 0)',
+	 20: 'rgb(0,  95, 0)',
+	 10: 'rgb(0,  75, 0)'
+};
+
 var canvas = document.getElementById('canvas');
 canvas.width = 800;
 canvas.height = 600;
 var context = canvas.getContext('2d');
 socket.on('state', function(obj) {
-	console.log(obj)
 	context.clearRect(0, 0, 800, 600);
-	context.fillStyle = 'green';
 	for (var id in obj.players) {
 		var player = obj.players[id];	
-		context.fillStyle = player.predator? 'red' : 'green';
+		context.fillStyle = hpColor[player.hp];
 		context.beginPath();
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.fill();
