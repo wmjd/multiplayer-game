@@ -58,7 +58,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('movement', function(data) {
-		var player = players[socket.id] || {};
+		var player = players[socket.id] || (()=>{console.log("!!"); return {}})();
 		if (data.fire){		//also create proj Dx,Dy,x,y,distRem
 			var proj = new Proj(socket.id)
 			if (data.left) {
@@ -140,7 +140,7 @@ setInterval(function() {
 			)
 			{
 				delete projectiles[p];
-				safeRemove[y];
+				safeRemove(y);
 				//console.log(y)
 				console.log(players);
 				break ;
@@ -181,7 +181,7 @@ function Proj(socketId){
 
 function safeRemove(socketId){
 	delete players[socketId];     	
-//	console.log(players);
+	console.log("plauers at beg of safe: ", players);
 	if(socketId == lastPredatorId){
 		lastPredatorId = drawPlayerId() || 0;
 		if(lastPredatorId)
@@ -192,4 +192,5 @@ function safeRemove(socketId){
 		if(predatorId)
 			players[predatorId].predator = true;
 	}
+	console.log("players at end of safe: ", players);
 }
