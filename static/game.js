@@ -79,7 +79,19 @@ var hpPredColor = {
 	 10: 'rgb( 75, 0, 0)',
       0: 'rgb( 55, 0, 0)'
 };
-
+var hpLastPredColor = {
+	100: 'rgb(0, 0, 255)',
+	 90: 'rgb(0, 0, 235)',
+	 80: 'rgb(0, 0, 215)',
+	 70: 'rgb(0, 0, 195)',
+	 60: 'rgb(0, 0, 175)',
+	 50: 'rgb(0, 0, 155)',
+	 40: 'rgb(0, 0, 135)',
+	 30: 'rgb(0, 0, 115)',
+	 20: 'rgb(0, 0,  95)',
+	 10: 'rgb(0, 0,  75)',
+      0: 'rgb(0, 0,  55)'
+};
 
 var canvas = document.getElementById('canvas');
 canvas.width = 800;
@@ -90,7 +102,8 @@ socket.on('state', function(obj) {
 	for (var id in obj.players) {
 		var player = obj.players[id];	
 		context.fillStyle = player.predator ? 
-			hpPredColor[player.hp] : hpColor[player.hp];
+			hpPredColor[player.hp] : player.lastPredator ? 
+				hpLastPredColor[player.hp] : hpColor[player.hp];
 		context.beginPath();
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.fill();
