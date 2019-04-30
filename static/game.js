@@ -100,10 +100,22 @@ var context = canvas.getContext('2d');
 socket.on('state', function(obj) {
 	context.clearRect(0, 0, 800, 600);
 	for (var id in obj.players) {
-		var player = obj.players[id];	
-		context.fillStyle = player.predator ? 
+		var player = obj.players[id];
+		if(player.lastPredator){
+			if(player.predator){
+				context.fillStyle = hpPredColor[player.hp];
+			}else{	
+				context.fillStyle = hpLastPredColor[player.hp]; 
+			}
+		}else if(player.predator){
+				context.fillStyle = hpPredColor[player.hp];
+		}else{
+			context.fillStyle = hpColor[player.hp]; 
+		}
+		/*player.predator ? 
 			hpPredColor[player.hp] : player.lastPredator ? 
 				hpLastPredColor[player.hp] : hpColor[player.hp];
+		*/
 		context.beginPath();
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.fill();

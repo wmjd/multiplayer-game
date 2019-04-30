@@ -108,9 +108,14 @@ setInterval(function() {
 			players[predatorId].predator = false;
 			players[predatorId].lastPredator = true;
 			players[preyId].predator = true;
-			lastPredatorId = predatorId;
-			predatorId = preyId;
-		} 
+			if(players[preyId].hp <= 30){
+				safeRemove(preyId);
+			}else{
+				players[preyId].hp -= 30;
+				lastPredatorId = predatorId;
+				predatorId = preyId;
+			} 
+		}
 	}
 		
 	for(var p in projectiles){
@@ -128,7 +133,7 @@ setInterval(function() {
 					Math.pow(players[id].x - projectiles[p].x,2) +
 					Math.pow(players[id].y - projectiles[p].y,2)) < 14)
 			){
-				if(players[id].hp <= 0){
+				if(players[id].hp <= 10){
 					safeRemove(id);
 				}else{
 					players[id].hp -=10;
