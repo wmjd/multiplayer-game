@@ -48,28 +48,30 @@ io.on('connection', function(socket) {
 
 	socket.on('movement', function(data) {
 		var player = players[socket.id] || {}
-		if (data.fire){		
+		if (data.fire && player.canFire){
+			player.canFire = false;		
 			var proj = new Proj(socket.id)
 			if (data.left) {
 				player.x -= 5;
-				proj.Dx  -= 20;
+				proj.Dx  -= 10;
 			}
 			if (data.up) {
 				player.y -= 5;
-				proj.Dy  -= 20
+				proj.Dy  -= 10
 			}
 			if (data.right) {
 				player.x += 5;
-				proj.Dx  += 20;
+				proj.Dx  += 10;
 			}
 			if (data.down) {
 				player.y += 5;
-				proj.Dy  += 20;
+				proj.Dy  += 10;
 			}
 			proj.x = player.x;
 			proj.y = player.y;
 			projectiles[pid++] = proj;
-			
+			//
+			setTimeout( (() => player.canFire = true), 1000); 
 		}else{
 			if (data.left) {
 				player.x -= 5;
@@ -127,14 +129,12 @@ setInterval(function() {
 					Math.pow(players[id].y - projectiles[p].y,2)) < 14)
 			){
 				if(players[id].hp <= 0){
-					delete projectiles[p];
 					safeRemove(id);
-					//console.log(id)
-					console.log(players);
-					break ;
 				}else{
 					players[id].hp -=10;
 				}
+				delete projectiles[p];
+				break 
 			}
 		}
 	}
@@ -165,22 +165,22 @@ function Proj(socketId){
 	this.y = 0;
 	this.Dx = 0;
 	this.Dy = 0;
-	this.distRem = 100; 
+	this.distRem = 500; 
 }
 function Play(isPred){
-	this.predator = isPred
+	this.predator = isPred;
 	this.lastPredator = false;
 	this.x = 800 * Math.random();
 	this.y = 600 * Math.random();
 	this.fire = false;
 	this.hp = 100;
+	this.canFire = true;
 }
 
 
 
 function safeRemove(socketId){
 	delete players[socketId];     	
-	console.log("plauers at beg of safe: ", players);
 	if(socketId == lastPredatorId){
 		lastPredatorId = drawPlayerId() || 0;
 		if(lastPredatorId)
@@ -191,5 +191,4 @@ function safeRemove(socketId){
 		if(predatorId)
 			players[predatorId].predator = true;
 	}
-	console.log("players at end of safe: ", players);
 }
