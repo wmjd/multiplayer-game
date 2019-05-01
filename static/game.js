@@ -144,8 +144,11 @@ var height = sheetHeight / rows //64
 var currentFrame = 0;
 
 var bulb = new Image();
-
-bulb.src = "/static/bulb.png"
+var pika = new Image();
+var char = new Image();
+bulb.src = "/static/bulb.png";
+pika.src = "/static/pika.png";
+char.src = "/static/char.png";
 var context = canvas.getContext('2d');
 socket.on('state', function (obj) {
 	context.clearRect(0, 0, 800, 600);
@@ -153,18 +156,18 @@ socket.on('state', function (obj) {
 		var player = obj.players[id];
 		if (player.lastPredator) {
 			if (player.predator) {
-				context.fillStyle = hpPredColor[player.hp];
+				context.drawImage(bulb, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
 			} else {
-				context.fillStyle = hpLastPredColor[player.hp];
+				context.drawImage(char, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
+		
 			}
-			context.beginPath();
-			context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-			context.fill();
 		} else if (player.predator) {
-			context.fillStyle = hpPredColor[player.hp];
+			context.drawImage(pika, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
+
+			/*context.fillStyle = hpPredColor[player.hp];
 			context.beginPath();
 			context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-			context.fill();
+			context.fill();*/
 		} else {
 			// context.fillStyle = hpColor[player.hp]; 
 			console.log(player.facing);
