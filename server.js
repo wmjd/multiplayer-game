@@ -47,28 +47,36 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('movement', function(data) {
-		var player = players[socket.id] || {}
+		var player = players[socket.id] || {};
+		player.facing = data.facing;
+		player.frameX = ++player.frameX % 4;
 		if (data.fire && player.canFire){
 			player.canFire = false;		
 			var proj = new Proj(socket.id)
-			if (data.left) {
-				player.x -= 5;
-				proj.Dx  -= 10;
-			}
 			if (data.up) {
 				player.y -= 5;
 				proj.Dy  -= 10
-			}
-			if (data.right) {
-				player.x += 5;
-				proj.Dx  += 10;
 			}
 			if (data.down) {
 				player.y += 5;
 				proj.Dy  += 10;
 			}
-			proj.x = player.x;
-			proj.y = player.y;
+			if (data.left) {
+				player.x -= 5;
+				proj.Dx  -= 10;
+			}
+			if (data.right) {
+				player.x += 5;
+				proj.Dx  += 10;
+			}
+			if(!(proj.Dy || proj.Dx)){
+				proj.distRem *= 10;
+			}
+			//the frames are 64x64, x,y of frame ref is top-left
+			//it isn't center so adjust 32x32
+			//this is also reflected in checking for hits 
+			proj.x = player.x + 32;
+			proj.y = player.y + 32;
 			projectiles[pid++] = proj;
 			//
 			setTimeout( (() => player.canFire = true), 1000); 
@@ -129,9 +137,10 @@ setInterval(function() {
 		for(var id in players){
 			if(
 				(id != projectiles[p].from) &&
+				//adjusted 32x32 for center
 				(Math.sqrt(
-					Math.pow(players[id].x - projectiles[p].x,2) +
-					Math.pow(players[id].y - projectiles[p].y,2)) < 14)
+					Math.pow(players[id].x - projectiles[p].x +32,2) +
+					Math.pow(players[id].y - projectiles[p].y +32,2)) < 14)
 			){
 				if(players[id].hp <= 10){
 					safeRemove(id);
@@ -175,6 +184,8 @@ function Proj(socketId){
 function Play(isPred){
 	this.predator = isPred;
 	this.lastPredator = false;
+	this.frameX = 0;
+	this.facing = "down";
 	this.x = 800 * Math.random();
 	this.y = 600 * Math.random();
 	this.fire = false;
