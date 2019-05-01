@@ -168,7 +168,7 @@ socket.on('state', function (obj) {
 		} else {
 			// context.fillStyle = hpColor[player.hp]; 
 			console.log(player.facing);
-			updateFrameY(player.facing);
+			updateSrcY(player.facing);
 			context.drawImage(bulb, player.frameX * width, srcY, width, height, player.x, player.y, width, height);
 			//console.log(bulb, srcX, srcY, width, height, player.x, player.y, width, height)
 		}
@@ -193,18 +193,18 @@ socket.on('state', function (obj) {
 });
 
 
-function updateFrameY(facing){
+function updateSrcY(facing){
 	if(facing.slice(0,4) == "left"){
-		srcY = 1;
+		srcY = 1 * height;
 	}
 	if(facing.slice(0,5) == "right"){
-		srcY = 2;
+		srcY = 2 * height;
 	}
 	if(facing == "up"){
-		srcY = 3;
+		srcY = 3 * height;
 	}
 	if(facing == "down"){
-		srcY = 4;
+		srcY = 0 * height;
 	}
 	
 }
