@@ -122,7 +122,7 @@ socket.on('state', function(obj) {
 	}
 	for (var p in obj.projectiles){
 		var prj = obj.projectiles[p];
-		context.fillStyle = 'black';
+		context.fillStyle = 'lime';
 		context.beginPath();
 		context.arc(prj.x, prj.y, 4, 0, 2 * Math.PI);
 		context.fill();
