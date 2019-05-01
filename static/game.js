@@ -83,45 +83,6 @@ setInterval(function () {
 }, 1000 / 60);
 
 
-var hpColor = {
-	100: 'rgb(0, 255, 0)',
-	90: 'rgb(0, 235, 0)',
-	80: 'rgb(0, 215, 0)',
-	70: 'rgb(0, 195, 0)',
-	60: 'rgb(0, 175, 0)',
-	50: 'rgb(0, 155, 0)',
-	40: 'rgb(0, 135, 0)',
-	30: 'rgb(0, 115, 0)',
-	20: 'rgb(0,  95, 0)',
-	10: 'rgb(0,  75, 0)',
-	0: 'rgb(0,  55, 0)'
-};
-var hpPredColor = {
-	100: 'rgb(255, 0, 0)',
-	90: 'rgb(235, 0, 0)',
-	80: 'rgb(215, 0, 0)',
-	70: 'rgb(195, 0, 0)',
-	60: 'rgb(175, 0, 0)',
-	50: 'rgb(155, 0, 0)',
-	40: 'rgb(135, 0, 0)',
-	30: 'rgb(115, 0, 0)',
-	20: 'rgb( 95, 0, 0)',
-	10: 'rgb( 75, 0, 0)',
-	0: 'rgb( 55, 0, 0)'
-};
-var hpLastPredColor = {
-	100: 'rgb(0, 0, 255)',
-	90: 'rgb(0, 0, 235)',
-	80: 'rgb(0, 0, 215)',
-	70: 'rgb(0, 0, 195)',
-	60: 'rgb(0, 0, 175)',
-	50: 'rgb(0, 0, 155)',
-	40: 'rgb(0, 0, 135)',
-	30: 'rgb(0, 0, 115)',
-	20: 'rgb(0, 0,  95)',
-	10: 'rgb(0, 0,  75)',
-	0: 'rgb(0, 0,  55)'
-};
 
 var canvas = document.getElementById('canvas');
 canvas.width = 800;
@@ -156,7 +117,7 @@ socket.on('state', function (obj) {
 		var player = obj.players[id];
 		if (player.lastPredator) {
 			if (player.predator) {
-				context.drawImage(bulb, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
+				context.drawImage(pika, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
 			} else {
 				context.drawImage(char, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
 		
@@ -164,31 +125,15 @@ socket.on('state', function (obj) {
 		} else if (player.predator) {
 			context.drawImage(pika, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
 
-			/*context.fillStyle = hpPredColor[player.hp];
-			context.beginPath();
-			context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-			context.fill();*/
 		} else {
-			// context.fillStyle = hpColor[player.hp]; 
 			console.log(player.facing);
 			
 			context.drawImage(bulb, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
-			//console.log(bulb, srcX, srcY, width, height, player.x, player.y, width, height)
 		}
-		/*player.predator ? 
-			hpPredColor[player.hp] : player.lastPredator ? 
-				hpLastPredColor[player.hp] : hpColor[player.hp];
-		*/
-
-
-		///
-		// context.beginPath();
-		// context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-		// context.fill();
 	}
 	for (var p in obj.projectiles) {
 		var prj = obj.projectiles[p];
-		context.fillStyle = 'lime';
+		context.fillStyle = 'red';
 		context.beginPath();
 		context.arc(prj.x, prj.y, 4, 0, 2 * Math.PI);
 		context.fill();
