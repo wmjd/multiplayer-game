@@ -168,8 +168,8 @@ socket.on('state', function (obj) {
 		} else {
 			// context.fillStyle = hpColor[player.hp]; 
 			console.log(player.facing);
-			updateSrcY(player.facing);
-			context.drawImage(bulb, player.frameX * width, srcY, width, height, player.x, player.y, width, height);
+			
+			context.drawImage(bulb, player.frameX * width, getSrcY(player.facing), width, height, player.x, player.y, width, height);
 			//console.log(bulb, srcX, srcY, width, height, player.x, player.y, width, height)
 		}
 		/*player.predator ? 
@@ -193,18 +193,20 @@ socket.on('state', function (obj) {
 });
 
 
-function updateSrcY(facing){
+function getSrcY(facing){
 	if(facing.slice(0,4) == "left"){
-		srcY = 1 * height;
+		return 1 * height;
 	}
 	if(facing.slice(0,5) == "right"){
-		srcY = 2 * height;
+		return 2 * height;
 	}
 	if(facing == "up"){
-		srcY = 3 * height;
+		return 3 * height;
 	}
 	if(facing == "down"){
-		srcY = 0 * height;
+		return 0 * height;
+	}if(facing == "else"){
+		return 0 * height;
 	}
 	
 }
