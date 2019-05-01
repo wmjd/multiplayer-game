@@ -50,6 +50,35 @@ document.addEventListener('keyup', function (event) {
 
 socket.emit('new player');
 setInterval(function () {
+
+	//calc facing
+	if(movement.right){
+		if(movement.up){
+			movement.facing = "right-up";
+		}
+		else if(movement.down){
+			movement.facing = "right-down";
+		}
+		else{
+			movement.facing = "right";
+		}
+	}else if(movement.left){
+		if(movement.up){
+			movement.facing = "left-up";
+		}
+		else if(movement.down){
+			movement.facing = "left-down";
+		}
+		else{
+			movement.facing = "left";
+		}
+		}else if(movement.up){
+		movement.facing = "up";
+	}else if(movement.down){
+		movement.facing = "down";
+	}else{
+		movement.facing = "else";
+	}
 	socket.emit('movement', movement);
 }, 1000 / 60);
 
@@ -138,8 +167,10 @@ socket.on('state', function (obj) {
 			context.fill();
 		} else {
 			// context.fillStyle = hpColor[player.hp]; 
-			context.drawImage(bulb, srcX, srcY, width, height, player.x, player.y, width, height)
-			console.log(bulb, srcX, srcY, width, height, player.x, player.y, width, height)
+			console.log(player.facing);
+			updateFrameY(player.facing);
+			context.drawImage(bulb, player.frameX * width, srcY, width, height, player.x, player.y, width, height);
+			//console.log(bulb, srcX, srcY, width, height, player.x, player.y, width, height)
 		}
 		/*player.predator ? 
 			hpPredColor[player.hp] : player.lastPredator ? 
@@ -162,7 +193,21 @@ socket.on('state', function (obj) {
 });
 
 
-
+function updateFrameY(facing){
+	if(facing.slice(0,4) == "left"){
+		srcY = 1;
+	}
+	if(facing.slice(0,5) == "right"){
+		srcY = 2;
+	}
+	if(facing == "up"){
+		srcY = 3;
+	}
+	if(facing == "down"){
+		srcY = 4;
+	}
+	
+}
 
 
 
