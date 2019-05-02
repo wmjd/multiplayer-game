@@ -186,8 +186,8 @@ function Play(isPred){
 	this.lastPredator = false;
 	this.frameX = 0;
 	this.facing = "down";
-	this.x = 800 * Math.random();
-	this.y = 600 * Math.random();
+	this.x = 736 * Math.random();
+	this.y = 536 * Math.random();
 	this.fire = false;
 	this.hp = 100;
 	this.canFire = true;
